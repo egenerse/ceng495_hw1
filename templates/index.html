@@ -1,0 +1,155 @@
+<html>
+    <head>
+        {% if title %}
+        <title>{{ title }}</title>
+        {% else %}
+        <title> Home </title>
+        {% endif %}
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/css/ol.css" type="text/css">
+        <style>
+          .map {
+            height: 400px;
+            width: 100%;
+          }
+        </style>
+        <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/build/ol.js"></script>
+    </head>
+    <body>
+        <label for="Ilce">Choose an Ilce:  </label>
+
+        <select id="Ilce" name="Ilce" onchange="f()">
+            {% for ilce in ilceler %}
+            <option value= "{{ilce}}" SELECTED>{{ilce}}</option>"
+            {% endfor %}
+        </select>
+
+{#        <label for="park">Choose a Park:</label>#}
+{#        <select id="park">#}
+{#            {% for data in park_data %}#}
+{#            <option value= "{{data.ParkAdi}}" SELECTED>{{data.ParkAdi}}</option>"#}
+{#            {% endfor %}#}
+{#        </select>#}
+        <p>
+
+        </p>
+
+
+        <div id="deneme">
+
+        </div>
+
+
+
+        <div id="map" class="map"></div>
+
+
+{##}
+{#        <label for="aa">Choose an aa:</label>#}
+{#        <select id="aa">#}
+{#            {% for data in a %}#}
+{#            <option value= "{{data}}" SELECTED>{{data}}</option>"#}
+{#            {% endfor %}#}
+{#        </select>#}
+
+    </body>
+</html>
+
+<script>
+    let flag = true;
+    let flag_for_map = true;
+    var map;
+    function call_map(){
+
+        let e = document.getElementById("Ilce");
+        let str_ilce = e.options[e.selectedIndex].value;
+
+        let park = document.getElementById("ParkAdi");
+        let str_park = park.options[park.selectedIndex].value;
+
+        let latitude;
+        let longitude;
+        let parks = {{ park_data|safe }};
+        parks.forEach(function (park) {
+            if(str_ilce == park['Ilce'] && str_park == park["ParkID"]){
+                latitude = park['Latitude'];
+                longitude = park['Longitude'];
+            }
+        });
+
+        if(flag_for_map){
+            flag_for_map=false;
+            map = new ol.Map({
+            target: 'map',
+            layers: [
+              new ol.layer.Tile({
+                source: new ol.source.OSM()
+              })
+            ],
+            view: new ol.View({
+              center: ol.proj.fromLonLat([longitude, latitude]),
+              zoom: 18
+                })
+            });
+        }else{
+            map.getView().setCenter(ol.proj.fromLonLat([longitude, latitude]));
+            map.getView().setZoom(18);
+
+        }
+
+    }
+
+    function f() {
+        let e = document.getElementById("Ilce");
+        let str_ilce = e.options[e.selectedIndex].value;
+
+        if(flag) {
+            flag = false;
+
+            var newlabel = document.createElement("Label");
+            newlabel.innerHTML = "Choose a Park:  ";
+            document.getElementById("deneme").appendChild(newlabel);
+
+            var sel = document.createElement('select');
+
+            sel.name = "ParkAdi";
+            sel.id = "ParkAdi";
+            sel.setAttribute("onchange", 'call_map()');
+
+
+            let parks = {{ park_data|safe }};
+
+            var options_str = "";
+            parks.forEach(function (park) {
+                if(str_ilce == park['Ilce']){
+                    options_str += '<option value="' + park['ParkID'] + '">' + park['ParkAdi']+' ' +park['ParkID'] + '</option>';
+                }
+            });
+            sel.innerHTML = options_str;
+            document.getElementById("deneme").appendChild(sel);
+        }else{
+            var select = document.getElementById("ParkAdi");
+            var length = select.options.length;
+            for (i = length-1; i >= 0; i--) {
+              select.options[i] = null;
+            }
+            select.name = 'ParkAdi';
+            select.id = 'ParkAdi';
+            select.setAttribute("onchange", 'call_map()');
+
+            let parks = {{ park_data|safe }};
+            var options_str = "";
+            parks.forEach(function (park) {
+                if(str_ilce == park['Ilce']){
+                    options_str += '<option value="' + park['ParkID'] + '">' + park['ParkAdi']+' ' +park['ParkID'] + '</option>';
+                }
+            });
+            select.innerHTML = options_str;
+        }
+    }
+
+
+
+</script>
+
+
+
