@@ -9,7 +9,7 @@
         <style>
           .map {
             height: 400px;
-            width: 100%;
+            width: 50%;
           }
         </style>
         <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/build/ol.js"></script>
@@ -23,12 +23,7 @@
             {% endfor %}
         </select>
 
-{#        <label for="park">Choose a Park:</label>#}
-{#        <select id="park">#}
-{#            {% for data in park_data %}#}
-{#            <option value= "{{data.ParkAdi}}" SELECTED>{{data.ParkAdi}}</option>"#}
-{#            {% endfor %}#}
-{#        </select>#}
+
         <p>
 
         </p>
@@ -38,18 +33,18 @@
 
         </div>
 
+        <p id="p1">
 
+        </p>
+
+        <p id="p2">
+
+        </p>
 
         <div id="map" class="map"></div>
 
 
-{##}
-{#        <label for="aa">Choose an aa:</label>#}
-{#        <select id="aa">#}
-{#            {% for data in a %}#}
-{#            <option value= "{{data}}" SELECTED>{{data}}</option>"#}
-{#            {% endfor %}#}
-{#        </select>#}
+
 
     </body>
 </html>
@@ -68,16 +63,25 @@
 
         let latitude;
         let longitude;
+        let p1_text;
+        let p2_text;
+        let capacity;
+        let free_capacity;
         let parks = {{ park_data|safe }};
         parks.forEach(function (park) {
             if(str_ilce == park['Ilce'] && str_park == park["ParkID"]){
                 latitude = park['Latitude'];
                 longitude = park['Longitude'];
+                capacity = park['Kapasitesi'];
+                free_capacity = park['BosKapasite'];
             }
         });
 
+
         if(flag_for_map){
             flag_for_map=false;
+
+
             map = new ol.Map({
             target: 'map',
             layers: [
@@ -91,10 +95,12 @@
                 })
             });
         }else{
+
             map.getView().setCenter(ol.proj.fromLonLat([longitude, latitude]));
             map.getView().setZoom(18);
 
         }
+        document.getElementById('p1').innerHTML = " Park capacity is " + capacity + " and there are "+ free_capacity + " free park slot(s).";
 
     }
 
